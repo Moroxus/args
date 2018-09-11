@@ -153,15 +153,13 @@ private:
                     throw logic_error("Option --"s + name + " needs an argument");
                 } else {
                     option.argument = argv[index+1];
-                    index += 2;
+                    index++;
                 }
             } else {
                 option.argument = arg;
-                index++;
             }
-        } else {
-            index++;
         }
+        index++;
     }
 };
 
