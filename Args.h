@@ -68,6 +68,8 @@ public:
                 parseShortOptions(argc, argv, i);
             } else if (isLongOption(argv[i])) {
                 parseLongOption(argc, argv, i);
+            } else {
+            	i++; //TODO throw exception with reasonable message that argument has invalid format
             }
         }
     }
