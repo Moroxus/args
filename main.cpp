@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Args.h"
+#include "args.h"
 #include <exception>
 
 using namespace std;

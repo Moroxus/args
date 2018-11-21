@@ -69,7 +69,7 @@ public:
             } else if (isLongOption(argv[i])) {
                 parseLongOption(argc, argv, i);
             } else {
-            	i++; //TODO throw exception with reasonable message that argument has invalid format
+                throw std::invalid_argument("Option \""s + argv[i] + "\" has invalid format. Valid formats are: -o [argumnent]; --option [argument]; --option[=argument]"s );
             }
         }
     }
