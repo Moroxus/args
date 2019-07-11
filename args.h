@@ -5,6 +5,7 @@
 #include <string>
 #include <stdexcept>
 #include <sstream>
+#include <iostream>
 
 class Arguments;
 
@@ -34,15 +35,33 @@ public:
     }
 
     int getInt() const {
-        return std::stoi(argument_, nullptr, 0); // TODO catch and rethrow with a reasonable error message
+        using namespace std::string_literals;
+        try {
+            return std::stoi(argument_, nullptr, 0);
+        } catch (...) {
+            throw std::logic_error(argument_ +
+                                   " cannot be converted to int"s);
+        }
     }
 
     float getFloat() const {
-        return std::stof(argument_); // TODO catch and rethrow with a reasonable error message
+        using namespace std::string_literals;
+        try {
+            return std::stof(argument_);
+        } catch (...) {
+            throw std::logic_error(argument_ +
+                                   " cannot be converted to float"s);
+        }
     }
 
     double getDouble() const {
-        return std::stod(argument_); // TODO catch and rethrow with a reasonable error message
+        using namespace std::string_literals;
+        try {
+            return std::stod(argument_);
+        } catch (...) {
+            throw std::logic_error(argument_ +
+                                   "cannot be converted to double"s);
+        }
     }
 
     std::string getString() const {
@@ -97,6 +116,17 @@ public:
                                " does not exist"s);
     }
 
+    void printUsage() {
+        for (const auto &option : options) {
+            std::cerr << "-" << option.shortOption_
+                      << "\t"
+                      << "--" << option.longOption_
+                      << "\t\t"
+                      << option.description_
+                      << "\n";
+        }
+    }
+
 private:
 
     bool isShortOption(std::string str) {
@@ -133,8 +163,10 @@ private:
     void parseShortOptions(const int argc, const char *argv[], int &index) {
         using namespace std;
         using namespace std::string_literals;
+
         string shortOpts = argv[index];
         shortOpts.erase(shortOpts.begin());
+
         for (unsigned i = 0; i < shortOpts.length(); ++i) {
             Option &option = findOption(shortOpts[i]);
             option.present_ = true;
@@ -142,7 +174,7 @@ private:
                 if (index + 1 >= argc) {
                     throw logic_error("Option -"s +
                                       string(1,option.shortOption_) +
-                                      " needs an argument");
+                                      " requires an argument");
                 } else {
                     option.argument_ = argv[++index];
                 }
@@ -154,6 +186,7 @@ private:
     void parseLongOption(const int argc, const char *argv[], int &index) {
         using namespace std;
         using namespace std::string_literals;
+
         string longOpt = argv[index];
         longOpt.erase(longOpt.begin(), longOpt.begin() + 2);
         stringstream stream(longOpt);
@@ -166,7 +199,7 @@ private:
             getline(stream, arg);
             if (arg.empty()) {
                 if (index + 1 >= argc) {
-                    throw logic_error("Option --"s + name + " needs an argument");
+                    throw logic_error("Option --"s + name + " requires an argument");
                 } else {
                     option.argument_ = argv[++index];
                 }
