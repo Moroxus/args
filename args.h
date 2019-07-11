@@ -9,21 +9,24 @@
 class Arguments;
 
 class Option {
-    const char shortOption;
-    const std::string longOption;
+    const char shortOption_;
+    const std::string longOption_;
     const std::string description_;
-    const bool hasArgument;
-    bool present = false;
-    std::string argument;
+    const bool hasArgument_;
+    bool present_ = false;
+    std::string argument_;
 
     friend Arguments;
 
 public:
-    Option(char shortOption, const std::string &longOption, const std::string description, bool hasArgument)
-        :shortOption(shortOption),
-         longOption(longOption),
+    Option(char shortOption,
+           const std::string &longOption,
+           const std::string description,
+           bool hasArgument)
+        :shortOption_(shortOption),
+         longOption_(longOption),
          description_(description),
-         hasArgument(hasArgument)
+         hasArgument_(hasArgument)
     {}
 
     std::string description() const {
@@ -31,23 +34,23 @@ public:
     }
 
     int getInt() const {
-        return std::stoi(argument, nullptr, 0); // TODO catch and rethrow with a reasonable error message
+        return std::stoi(argument_, nullptr, 0); // TODO catch and rethrow with a reasonable error message
     }
 
     float getFloat() const {
-        return std::stof(argument); // TODO catch and rethrow with a reasonable error message
+        return std::stof(argument_); // TODO catch and rethrow with a reasonable error message
     }
 
     double getDouble() const {
-        return std::stod(argument); // TODO catch and rethrow with a reasonable error message
+        return std::stod(argument_); // TODO catch and rethrow with a reasonable error message
     }
 
     std::string getString() const {
-        return argument;
+        return argument_;
     }
 
     explicit operator bool() const {
-        return present;
+        return present_;
     }
 };
 
@@ -56,7 +59,10 @@ class Arguments {
 
 public:
 
-    void add(char shortOption, const std::string &longOption, const std::string &description, bool hasArgument = false) {
+    void add(char shortOption,
+             const std::string &longOption,
+             const std::string &description,
+             bool hasArgument = false) {
         options.emplace_back(shortOption, longOption, description, hasArgument);
     }
 
@@ -69,19 +75,26 @@ public:
             } else if (isLongOption(argv[i])) {
                 parseLongOption(argc, argv, i);
             } else {
-                throw std::invalid_argument("Option \""s + argv[i] + "\" has invalid format. Valid formats are: -o [argumnent]; --option [argument]; --option[=argument]"s );
+                throw std::invalid_argument("Option \""s +
+                                            argv[i] +
+                                            "\" has invalid format. "
+                                            "Valid formats are: -o [argumnent]; "
+                                            "--option [argument]; "
+                                            "--option[=argument]"s );
             }
         }
     }
 
-    Option& operator()(const std::string &opt){
+    Option& operator()(const std::string &opt) {
         using namespace std::string_literals;
         for (auto &option : options) {
-            if (option.longOption == opt) {
+            if (option.longOption_ == opt) {
                 return option;
             }
         }
-        throw std::logic_error("Option "s + opt + " does not exist"s);
+        throw std::logic_error("Option "s +
+                               opt +
+                               " does not exist"s);
     }
 
 private:
@@ -100,7 +113,7 @@ private:
     Option &findOption(char shortOption) {
         using namespace std::string_literals;
         for (auto &option : options) {
-            if (option.shortOption == shortOption) {
+            if (option.shortOption_ == shortOption) {
                 return option;
             }
         }
@@ -110,7 +123,7 @@ private:
     Option &findOption(const std::string &longOption) {
         using namespace std::string_literals;
         for (auto &option : options) {
-            if (option.longOption == longOption) {
+            if (option.longOption_ == longOption) {
                 return option;
             }
         }
@@ -124,13 +137,14 @@ private:
         shortOpts.erase(shortOpts.begin());
         for (unsigned i = 0; i < shortOpts.length(); ++i) {
             Option &option = findOption(shortOpts[i]);
-            option.present = true;
-            if (option.hasArgument && i == shortOpts.length() - 1) {
+            option.present_ = true;
+            if (option.hasArgument_ && i == shortOpts.length() - 1) {
                 if (index + 1 >= argc) {
-                    throw logic_error("Option -"s + string(1,option.shortOption) + " needs an argument");
+                    throw logic_error("Option -"s +
+                                      string(1,option.shortOption_) +
+                                      " needs an argument");
                 } else {
-                    option.argument = argv[index+1];
-                    index++;
+                    option.argument_ = argv[++index];
                 }
             }
         }
@@ -146,19 +160,18 @@ private:
         string name;
         getline(stream, name, '=');
         Option &option = findOption(name);
-        option.present = true ;
-        if (option.hasArgument) {
+        option.present_ = true;
+        if (option.hasArgument_) {
             string arg;
             getline(stream, arg);
             if (arg.empty()) {
                 if (index + 1 >= argc) {
                     throw logic_error("Option --"s + name + " needs an argument");
                 } else {
-                    option.argument = argv[index+1];
-                    index++;
+                    option.argument_ = argv[++index];
                 }
             } else {
-                option.argument = arg;
+                option.argument_ = arg;
             }
         }
         index++;
