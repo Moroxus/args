@@ -17,7 +17,7 @@ int main(int argc, const char *argv[])
         if (arguments("prefix")) {
             cout << "path is " << arguments("prefix").getFloat() << endl;
         }
-        arguments.printUsage();
+        arguments.printOptions();
     } catch (std::exception &e) {
         cout << "\nException: " << e.what() << endl;
     }

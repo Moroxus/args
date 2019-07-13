@@ -116,7 +116,7 @@ public:
                                " does not exist"s);
     }
 
-    void printUsage() {
+    void printOptions() {
         for (const auto &option : options) {
             std::cerr << "-" << option.shortOption_
                       << "\t"
